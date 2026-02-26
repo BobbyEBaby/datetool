@@ -1,0 +1,13 @@
+# Godot executable
+*.exe
+
+# Godot generated files
+.godot/
+
+# Export builds
+*.pck
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
