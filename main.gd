@@ -171,7 +171,7 @@ func _calculate() -> void:
 		if idx == 0:
 			dur = 1
 			title = "Initial Certification Period"
-			form = "Form 4"
+			form = "Form 4.1"
 		elif idx == 1:
 			dur = 1
 			title = "1st Renewal"
@@ -205,20 +205,22 @@ func _calculate() -> void:
 		idx += 1
 
 	_sep()
-	_label("Calculated per the BC Interpretation Act:", 12, Color(0.45, 0.45, 0.5))
+	_label("Calculated per the Mental Health Act [RSBC 1996] CHAPTER 288 and BC Interpretation Act [RSBC 1996] CHAPTER 238:", 12, Color(0.45, 0.45, 0.5))
 	_label("A \"month\" = corresponding calendar day of the target month, less one day.", 12, Color(0.45, 0.45, 0.5))
 	_label("When no corresponding day exists, the last day of that month is used.", 12, Color(0.45, 0.45, 0.5))
+	_label("Always manually double check calculations.", 12, Color(0.45, 0.45, 0.5))
 	_sep()
-	_label("Disclaimer: The Act offers no guidance regarding how many days prior to the end of the", 12, Color(0.45, 0.45, 0.5))
+	_label("Note: The Act offers no guidance regarding how many days prior to the end of the", 12, Color(0.45, 0.45, 0.5))
 	_label("last month of a period the examination must be completed, however, it is", 12, Color(0.45, 0.45, 0.5))
 	_label("recommended this be done reasonably close to the end of the period.", 12, Color(0.45, 0.45, 0.5))
 
 	_line("")
-	_line("Calculated per the BC Interpretation Act:")
+	_line("Calculated per the Mental Health Act [RSBC 1996] CHAPTER 288 and BC Interpretation Act [RSBC 1996] CHAPTER 238:")
 	_line("A \"month\" = corresponding calendar day of the target month, less one day.")
 	_line("When no corresponding day exists, the last day of that month is used.")
+	_line("Always manually double check calculations.")
 	_line("")
-	_line("Disclaimer: The Act offers no guidance regarding how many days prior to the end of the")
+	_line("Note: The Act offers no guidance regarding how many days prior to the end of the")
 	_line("last month of a period the examination must be completed, however, it is")
 	_line("recommended this be done reasonably close to the end of the period.")
 
@@ -271,7 +273,7 @@ func _build_html() -> String:
 			body += "<p class=\"period\">%s</p>\n" % line.strip_edges()
 		elif line.begins_with("Calculated per") or line.begins_with("A \"month\"") or line.begins_with("When no corresponding"):
 			body += "<p class=\"note\">%s</p>\n" % line
-		elif line.begins_with("Disclaimer:") or line.begins_with("last month of") or line.begins_with("recommended this"):
+		elif line.begins_with("Note:") or line.begins_with("last month of") or line.begins_with("recommended this"):
 			body += "<p class=\"note\">%s</p>\n" % line
 		elif not line.is_empty():
 			body += "<h3>%s</h3>\n" % line
