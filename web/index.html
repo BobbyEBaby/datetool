@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BC MHA Recertification Date Calculator | certdate.ca</title>
+<meta name="description" content="Calculate BC Mental Health Act recertification dates based on the initial Form 4.1 certification date.">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #0f1520;
+    color: #e0e4ea;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .container {
+    max-width: 820px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 30px 24px;
+    flex: 1;
+  }
+  h1 {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .subtitle {
+    font-size: 16px;
+    text-align: center;
+    color: #b0b8c8;
+    margin-bottom: 16px;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #2a2f3a;
+    margin: 12px 0;
+  }
+  .instruction {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .date-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .date-row label {
+    font-size: 14px;
+  }
+  .date-row select {
+    padding: 6px 10px;
+    border-radius: 4px;
+    border: 1px solid #3a4050;
+    background: #1a2030;
+    color: #e0e4ea;
+    font-size: 14px;
+  }
+  .date-row .spacer { width: 12px; }
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 8px;
+  }
+  button {
+    padding: 10px 24px;
+    border-radius: 4px;
+    border: 1px solid #3a4050;
+    background: #1e2a3a;
+    color: #e0e4ea;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  button:hover { background: #2a3a4a; }
+  button.primary { background: #1a5276; border-color: #2980b9; }
+  button.primary:hover { background: #21618c; }
+  #results { margin-top: 8px; }
+  .r-cert { font-size: 17px; color: #80ccff; margin: 4px 0; }
+  .r-horizon { font-size: 13px; color: #8c8c99; margin-bottom: 4px; }
+  .r-title { font-size: 15px; color: #f2e08c; margin: 8px 0 2px 0; }
+  .r-period { font-size: 14px; margin: 2px 0 2px 20px; }
+  .r-deadline { font-size: 14px; margin: 2px 0 2px 20px; color: #ff8040; font-weight: bold; }
+  .r-note { font-size: 12px; color: #72727a; margin: 2px 0; }
+  .r-sep { border-top: 1px solid #2a2f3a; margin: 6px 0; }
+
+  /* Ad slot */
+  .ad-slot {
+    max-width: 820px;
+    width: 100%;
+    margin: 16px auto;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .ad-placeholder {
+    background: #1a2030;
+    border: 1px dashed #3a4050;
+    border-radius: 4px;
+    padding: 20px;
+    color: #555;
+    font-size: 12px;
+  }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: #555;
+    padding: 16px;
+  }
+
+  @media print {
+    body { background: #fff; color: #222; }
+    .ad-slot, footer, button, .date-row, .instruction, .btn-row { display: none; }
+    .r-cert { color: #1a5276; }
+    .r-title { color: #333; }
+    .r-deadline { color: #c0392b; }
+    .r-note { color: #888; }
+    hr, .r-sep { border-color: #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>BC Mental Health Act</h1>
+  <div class="subtitle">Recertification Date Calculator</div>
+  <hr>
+
+  <div class="instruction">Enter the date of initial certification (Form 4.1):</div>
+
+  <div class="date-row">
+    <label for="year">Year:</label>
+    <select id="year"></select>
+    <div class="spacer"></div>
+    <label for="month">Month:</label>
+    <select id="month"></select>
+    <div class="spacer"></div>
+    <label for="day">Day:</label>
+    <select id="day"></select>
+  </div>
+
+  <div class="btn-row">
+    <button class="primary" id="calcBtn">Calculate Recertification Dates</button>
+    <button id="printBtn">Print</button>
+  </div>
+
+  <hr>
+  <div id="results"></div>
+</div>
+
+<div class="ad-slot">
+  <div class="ad-placeholder">Ad Space</div>
+</div>
+
+<footer>certdate.ca</footer>
+
+<script>
+const MONTHS = [
+  "January","February","March","April","May","June",
+  "July","August","September","October","November","December"
+];
+const ABBR = [
+  "Jan","Feb","Mar","Apr","May","Jun",
+  "Jul","Aug","Sep","Oct","Nov","Dec"
+];
+
+const yearEl = document.getElementById("year");
+const monthEl = document.getElementById("month");
+const dayEl = document.getElementById("day");
+const calcBtn = document.getElementById("calcBtn");
+const printBtn = document.getElementById("printBtn");
+const resultsEl = document.getElementById("results");
+
+function isLeap(y) {
+  return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+}
+
+function dim(y, m) {
+  const t = [31,28,31,30,31,30,31,31,30,31,30,31];
+  return m === 2 && isLeap(y) ? 29 : t[m - 1];
+}
+
+function nextDay(d) {
+  let { year, month, day } = d;
+  day++;
+  if (day > dim(year, month)) {
+    day = 1;
+    month++;
+    if (month > 12) { month = 1; year++; }
+  }
+  return { year, month, day };
+}
+
+function prevDay(d) {
+  let { year, month, day } = d;
+  day--;
+  if (day < 1) {
+    month--;
+    if (month < 1) { month = 12; year--; }
+    day = dim(year, month);
+  }
+  return { year, month, day };
+}
+
+function period(start, months) {
+  let tm = start.month + months;
+  let ty = start.year;
+  while (tm > 12) { tm -= 12; ty++; }
+  const mx = dim(ty, tm);
+  let expiry;
+  if (start.day <= mx) {
+    expiry = prevDay({ year: ty, month: tm, day: start.day });
+  } else {
+    expiry = { year: ty, month: tm, day: mx };
+  }
+  return { expiry, next: nextDay(expiry) };
+}
+
+function dkey(d) {
+  return d.year * 10000 + d.month * 100 + d.day;
+}
+
+function fmt(d) {
+  return `${ABBR[d.month - 1]} ${d.day}, ${d.year}`;
+}
+
+function ord(n) {
+  if (n % 100 >= 11 && n % 100 <= 13) return n + "th";
+  switch (n % 10) {
+    case 1: return n + "st";
+    case 2: return n + "nd";
+    case 3: return n + "rd";
+    default: return n + "th";
+  }
+}
+
+// Populate dropdowns
+function init() {
+  const now = new Date();
+  const curYear = now.getFullYear();
+  for (let y = curYear - 5; y <= curYear + 5; y++) {
+    const opt = new Option(y, y);
+    if (y === curYear) opt.selected = true;
+    yearEl.appendChild(opt);
+  }
+  MONTHS.forEach((m, i) => {
+    const opt = new Option(m, i + 1);
+    if (i === now.getMonth()) opt.selected = true;
+    monthEl.appendChild(opt);
+  });
+  refreshDays();
+  const d = now.getDate();
+  if (d <= dayEl.options.length) dayEl.selectedIndex = d - 1;
+}
+
+function refreshDays() {
+  const prev = dayEl.selectedIndex;
+  dayEl.innerHTML = "";
+  const y = parseInt(yearEl.value);
+  const m = parseInt(monthEl.value);
+  const days = dim(y, m);
+  for (let d = 1; d <= days; d++) {
+    dayEl.appendChild(new Option(d, d));
+  }
+  dayEl.selectedIndex = Math.min(prev, dayEl.options.length - 1);
+}
+
+yearEl.addEventListener("change", refreshDays);
+monthEl.addEventListener("change", refreshDays);
+
+calcBtn.addEventListener("click", calculate);
+printBtn.addEventListener("click", () => {
+  if (!resultsEl.innerHTML) return;
+  window.print();
+});
+
+function calculate() {
+  resultsEl.innerHTML = "";
+
+  const cert = {
+    year: parseInt(yearEl.value),
+    month: parseInt(monthEl.value),
+    day: parseInt(dayEl.value)
+  };
+
+  // 2-year horizon
+  let lm = cert.month + 24;
+  let ly = cert.year;
+  while (lm > 12) { lm -= 12; ly++; }
+  const ld = Math.min(cert.day, dim(ly, lm));
+  const limit = dkey({ year: ly, month: lm, day: ld });
+
+  let html = "";
+  html += `<div class="r-cert">Certification Date: ${fmt(cert)}</div>`;
+  html += `<div class="r-horizon">Two-year horizon: ${fmt({ year: ly, month: lm, day: ld })}</div>`;
+  html += `<div class="r-sep"></div>`;
+
+  let cur = { ...cert };
+  let idx = 0;
+
+  while (true) {
+    let dur, title, form;
+
+    if (idx === 0) {
+      dur = 1; title = "Initial Certification Period"; form = "Form 4.1";
+    } else if (idx === 1) {
+      dur = 1; title = "1st Renewal"; form = "Form 6 #1";
+    } else if (idx === 2) {
+      dur = 3; title = "2nd Renewal"; form = "Form 6 #2";
+    } else {
+      dur = 6; title = ord(idx) + " Renewal"; form = "Form 6 #" + idx;
+    }
+
+    const p = period(cur, dur);
+    const monthsStr = dur + " month" + (dur === 1 ? "" : "s");
+
+    html += `<div class="r-title">${title}  (${form})  --  ${monthsStr}</div>`;
+    html += `<div class="r-period">Period: ${fmt(cur)}  to  ${fmt(p.expiry)}</div>`;
+    html += `<div class="r-deadline">Renewal must be completed by: ${fmt(p.expiry)}</div>`;
+    html += `<div class="r-sep"></div>`;
+
+    if (dkey(p.next) > limit) break;
+    cur = p.next;
+    idx++;
+  }
+
+  html += `<div class="r-sep"></div>`;
+  html += `<div class="r-note">Calculated per the Mental Health Act [RSBC 1996] CHAPTER 288 and BC Interpretation Act [RSBC 1996] CHAPTER 238:</div>`;
+  html += `<div class="r-note">A "month" = corresponding calendar day of the target month, less one day.</div>`;
+  html += `<div class="r-note">When no corresponding day exists, the last day of that month is used.</div>`;
+  html += `<div class="r-note">Always manually double check calculations.</div>`;
+  html += `<div class="r-sep"></div>`;
+  html += `<div class="r-note">Note: The Act offers no guidance regarding how many days prior to the end of the last month of a period the examination must be completed, however, it is recommended this be done reasonably close to the end of the period.</div>`;
+
+  resultsEl.innerHTML = html;
+}
+
+init();
+</script>
+</body>
+</html>
