@@ -141,8 +141,8 @@ func _calculate() -> void:
 		"day": day_opt.selected + 1,
 	}
 
-	# 2-year horizon from certification date
-	var lm: int = int(cert.month) + 24
+	# 5-year horizon from certification date
+	var lm: int = int(cert.month) + 60
 	var ly: int = int(cert.year)
 	while lm > 12:
 		lm -= 12
@@ -150,52 +150,57 @@ func _calculate() -> void:
 	var ld: int = mini(int(cert.day), _dim(ly, lm))
 	var limit: int = _dkey({"year": ly, "month": lm, "day": ld})
 
-	_label("Certification Date:  %s" % _fmt(cert), 17, Color(0.5, 0.8, 1.0))
-	_label("Two-year horizon:  %s" % _fmt({"year": ly, "month": lm, "day": ld}), 13, Color(0.55, 0.55, 0.6))
+	_label("Involuntary Hospitalization Date:  %s" % _fmt(cert), 17, Color(0.5, 0.8, 1.0))
+	_label("Five-year horizon:  %s" % _fmt({"year": ly, "month": lm, "day": ld}), 13, Color(0.55, 0.55, 0.6))
 	_sep()
 
 	_line("BC Mental Health Act - Recertification Schedule")
 	_line("================================================")
-	_line("Certification Date:  %s" % _fmt(cert))
-	_line("Two-year horizon:    %s" % _fmt({"year": ly, "month": lm, "day": ld}))
+	_line("Involuntary Hospitalization Date:  %s" % _fmt(cert))
+	_line("Five-year horizon:    %s" % _fmt({"year": ly, "month": lm, "day": ld}))
 	_line("")
 
+	# Form 4.1 - First Medical Certificate
+	var p0 := _period(cert, 1)
+
+	_label("First Medical Certificate  (Form 4.1)", 15, Color(0.95, 0.88, 0.55))
+	_rich_label("    Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1 -- [color=#ff8040]48 hours[/color]", 14)
+	_sep()
+
+	_line("First Medical Certificate  (Form 4.1)")
+	_line("    Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1 -- 48 hours")
+	_line("------------------------------------------------")
+
+	# Form 6 renewals - first one is 1 month from Form 4.1 date
 	var cur := cert
 	var idx := 0
 
 	while true:
 		var dur: int
 		var title: String
-		var form: String
 
 		if idx == 0:
 			dur = 1
-			title = "Initial Certification Period"
-			form = "Form 4.1"
+			title = "1st Renewal"
 		elif idx == 1:
 			dur = 1
-			title = "1st Renewal"
-			form = "Form 6 #1"
+			title = "2nd Renewal"
 		elif idx == 2:
 			dur = 3
-			title = "2nd Renewal"
-			form = "Form 6 #2"
+			title = "3rd Renewal"
 		else:
 			dur = 6
-			title = "%s Renewal" % _ord(idx)
-			form = "Form 6 #%d" % idx
+			title = "%s Renewal" % _ord(idx + 1)
 
 		var p := _period(cur, dur)
 		var months_str := "%d month%s" % [dur, "" if dur == 1 else "s"]
 
-		_label("%s  (%s)  --  %s" % [title, form, months_str], 15, Color(0.95, 0.88, 0.55))
-		_label("    Period:  %s  to  %s" % [_fmt(cur), _fmt(p.expiry)], 14, Color.WHITE)
-		_label("    Renewal must be completed by:  %s" % _fmt(p.expiry), 14, Color(1.0, 0.5, 0.25))
+		_label("%s  --  %s (minus 1 day)" % [title, months_str], 15, Color(0.95, 0.88, 0.55))
+		_rich_label("    Renewal Certificate (Form 6) must be completed: after  %s  but closer to and before  [color=#ff8040]%s @11:59pm[/color]" % [_fmt(cur), _fmt(p.expiry)], 14)
 		_sep()
 
-		_line("%s  (%s)  --  %s" % [title, form, months_str])
-		_line("    Period:  %s  to  %s" % [_fmt(cur), _fmt(p.expiry)])
-		_line("    Renewal must be completed by:  %s" % _fmt(p.expiry))
+		_line("%s  --  %s (minus 1 day)" % [title, months_str])
+		_line("    Renewal Certificate (Form 6) must be completed: after  %s  but closer to and before  %s @11:59pm" % [_fmt(cur), _fmt(p.expiry)])
 		_line("------------------------------------------------")
 
 		if _dkey(p.next) > limit:
@@ -233,6 +238,16 @@ func _label(text: String, font_size: int = 14, color := Color.WHITE) -> void:
 	results.add_child(l)
 
 
+func _rich_label(bbcode: String, font_size: int = 14) -> void:
+	var l := RichTextLabel.new()
+	l.bbcode_enabled = true
+	l.fit_content = true
+	l.scroll_active = false
+	l.add_theme_font_size_override("normal_font_size", font_size)
+	l.text = bbcode
+	results.add_child(l)
+
+
 func _sep() -> void:
 	results.add_child(HSeparator.new())
 
@@ -261,7 +276,7 @@ func _build_html() -> String:
 			body += "<h1>%s</h1>\n" % line
 		elif line.begins_with("===="):
 			continue
-		elif line.begins_with("Certification Date:"):
+		elif line.begins_with("Involuntary Hospitalization Date:"):
 			body += "<p class=\"cert-date\">%s</p>\n" % line
 		elif line.begins_with("Two-year horizon:"):
 			body += "<p class=\"horizon\">%s</p>\n" % line

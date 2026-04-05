@@ -128,8 +128,8 @@
 <body>
 
 <div class="container">
-  <h1>BC Mental Health Act</h1>
-  <div class="subtitle">Recertification Date Calculator</div>
+  <h1>Recertification Date Calculator</h1>
+  <div class="subtitle">BC Mental Health Act</div>
   <hr>
 
   <div class="instruction">Enter the date of initial certification (Form 4.1):</div>
@@ -289,40 +289,47 @@ function calculate() {
     day: parseInt(dayEl.value)
   };
 
-  // 2-year horizon
-  let lm = cert.month + 24;
+  // 5-year horizon
+  let lm = cert.month + 60;
   let ly = cert.year;
   while (lm > 12) { lm -= 12; ly++; }
   const ld = Math.min(cert.day, dim(ly, lm));
   const limit = dkey({ year: ly, month: lm, day: ld });
 
   let html = "";
-  html += `<div class="r-cert">Certification Date: ${fmt(cert)}</div>`;
-  html += `<div class="r-horizon">Two-year horizon: ${fmt({ year: ly, month: lm, day: ld })}</div>`;
+  html += `<div class="r-cert">Involuntary Hospitalization Date: ${fmt(cert)}</div>`;
+  html += `<div class="r-horizon">Five-year horizon: ${fmt({ year: ly, month: lm, day: ld })}</div>`;
   html += `<div class="r-sep"></div>`;
 
+  // Form 4.1 - First Medical Certificate
+  const p0 = period(cert, 1);
+
+  html += `<div class="r-title">First Medical Certificate  (Form 4.1)</div>`;
+  html += `<div class="r-period">Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1 -- <span style="color:#ff8040;font-weight:bold">48 hours</span></div>`;
+  html += `<div class="r-sep"></div>`;
+
+  // Form 6 renewals
   let cur = { ...cert };
   let idx = 0;
 
   while (true) {
-    let dur, title, form;
+    let dur, title;
 
     if (idx === 0) {
-      dur = 1; title = "Initial Certification Period"; form = "Form 4.1";
+      dur = 1; title = "1st Renewal";
     } else if (idx === 1) {
-      dur = 1; title = "1st Renewal"; form = "Form 6 #1";
+      dur = 1; title = "2nd Renewal";
     } else if (idx === 2) {
-      dur = 3; title = "2nd Renewal"; form = "Form 6 #2";
+      dur = 3; title = "3rd Renewal";
     } else {
-      dur = 6; title = ord(idx) + " Renewal"; form = "Form 6 #" + idx;
+      dur = 6; title = ord(idx + 1) + " Renewal";
     }
 
     const p = period(cur, dur);
     const monthsStr = dur + " month" + (dur === 1 ? "" : "s");
 
-    html += `<div class="r-title">${title}  (${form})  --  ${monthsStr}</div>`;
-    html += `<div class="r-period">Period: ${fmt(cur)}  to  ${fmt(p.expiry)}</div>`;
-    html += `<div class="r-deadline">Renewal must be completed by: ${fmt(p.expiry)}</div>`;
+    html += `<div class="r-title">${title}  --  ${monthsStr} (minus 1 day)</div>`;
+    html += `<div class="r-period">Renewal Certificate (Form 6) must be completed: after  ${fmt(cur)}  but closer to and before  <span style="color:#ff8040;font-weight:bold">${fmt(p.expiry)} @11:59pm</span></div>`;
     html += `<div class="r-sep"></div>`;
 
     if (dkey(p.next) > limit) break;
