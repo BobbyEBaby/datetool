@@ -174,13 +174,13 @@ func _calculate() -> void:
 		_cell(grid, h, 15, Color(0.2, 0.15, 0.4), true, -1)
 
 	# Row 0: 1st Medical Certificate
-	_cell(grid, "1st Medical Certificate (Form 4.1)", 15, Color(0.3, 0.2, 0.5), true, 0)
+	_cell(grid, "1st Medical Certificate (Form 4.1)", 15, Color(0.3, 0.2, 0.5), true, 0, 0)
 	_cell(grid, "48 hours", 15, Color(0.15, 0.15, 0.15), false, 0)
 	_cell(grid, "%s (AKA - involuntary hospitalization date)" % _fmt(cert), 15, Color(0.15, 0.15, 0.15), false, 0)
 	_cell(grid, "48 hours after Form 4.1 created on %s" % _fmt(cert), 15, Color(0.75, 0.2, 0.3), false, 0)
 
 	# Row 1: 2nd Medical Certificate
-	_cell(grid, "2nd Medical Certificate (Form 4.2)", 15, Color(0.3, 0.2, 0.5), true, 1)
+	_cell(grid, "2nd Medical Certificate (Form 4.2)", 15, Color(0.3, 0.2, 0.5), true, 1, 0)
 	_cell(grid, "1 month from involuntary hospitalization date (minus 1 day)", 15, Color(0.15, 0.15, 0.15), false, 1)
 	_cell(grid, _fmt(cert), 15, Color(0.15, 0.15, 0.15), false, 1)
 	_cell(grid, "%s @11:59pm" % _fmt(p0.expiry), 15, Color(0.75, 0.2, 0.3), false, 1)
@@ -210,7 +210,7 @@ func _calculate() -> void:
 		var months_str := "%d month%s (minus 1 day)" % [dur, "" if dur == 1 else "s"]
 
 		var row_num := idx + 2
-		_cell(grid, "%s (Form 6)" % action, 15, Color(0.3, 0.2, 0.5), true, row_num)
+		_cell(grid, "%s (Form 6)" % action, 15, Color(0.3, 0.2, 0.5), true, row_num, 0)
 		_cell(grid, months_str, 15, Color(0.15, 0.15, 0.15), false, row_num)
 		_cell(grid, _fmt(cur), 15, Color(0.15, 0.15, 0.15), false, row_num)
 		_cell(grid, "%s @11:59pm" % _fmt(p.expiry), 15, Color(0.75, 0.2, 0.3), false, row_num)
@@ -250,8 +250,10 @@ func _rich_label(bbcode: String, font_size: int = 14) -> void:
 	results.add_child(l)
 
 
-func _cell(grid: GridContainer, text: String, font_size: int = 11, color := Color.WHITE, bold := false, row: int = 0) -> void:
+func _cell(grid: GridContainer, text: String, font_size: int = 11, color := Color.WHITE, bold := false, row: int = 0, col: int = -1) -> void:
 	var panel := PanelContainer.new()
+	if col == 0:
+		panel.custom_minimum_size.x = 280
 	var style := StyleBoxFlat.new()
 	if row == -1:
 		# Header
