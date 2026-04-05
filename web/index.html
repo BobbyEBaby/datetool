@@ -342,7 +342,7 @@ function calculate() {
       dur = 3; action = "2nd Renewal";
     } else {
       dur = 6;
-      action = idx === 2 ? "3rd Renewal and Subsequent Renewals" : ord(idx + 1) + " Renewal";
+      action = idx === 2 ? "3rd Renewal" : ord(idx + 1) + " Renewal";
     }
 
     const p = period(cur, dur);

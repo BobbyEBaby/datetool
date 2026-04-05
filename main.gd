@@ -202,7 +202,7 @@ func _calculate() -> void:
 		else:
 			dur = 6
 			if idx == 2:
-				action = "3rd Renewal and Subsequent Renewals"
+				action = "3rd Renewal"
 			else:
 				action = "%s Renewal" % _ord(idx + 1)
 
