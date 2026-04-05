@@ -9,8 +9,8 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: #0f1520;
-    color: #e0e4ea;
+    background: #ffffff;
+    color: #222;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -56,9 +56,9 @@
   .date-row select {
     padding: 6px 10px;
     border-radius: 4px;
-    border: 1px solid #3a4050;
-    background: #1a2030;
-    color: #e0e4ea;
+    border: 1px solid #bfb3d9;
+    background: #ffffff;
+    color: #222;
     font-size: 14px;
   }
   .date-row .spacer { width: 12px; }
@@ -71,16 +71,16 @@
   button {
     padding: 10px 24px;
     border-radius: 4px;
-    border: 1px solid #3a4050;
-    background: #1e2a3a;
+    border: 1px solid #bfb3d9;
+    background: #f0edf8;
     color: #e0e4ea;
     font-size: 15px;
     cursor: pointer;
     transition: background 0.15s;
   }
-  button:hover { background: #2a3a4a; }
-  button.primary { background: #1a5276; border-color: #2980b9; }
-  button.primary:hover { background: #21618c; }
+  button:hover { background: #e8e0f5; }
+  button.primary { background: #4a2d6e; border-color: #7b5ea7; color: #fff; }
+  button.primary:hover { background: #5a3d80; }
   #results { margin-top: 8px; }
   .r-cert { font-size: 17px; color: #80ccff; margin: 4px 0; }
   .r-horizon { font-size: 13px; color: #8c8c99; margin-bottom: 4px; }
@@ -89,6 +89,14 @@
   .r-deadline { font-size: 14px; margin: 2px 0 2px 20px; color: #ff8040; font-weight: bold; }
   .r-note { font-size: 12px; color: #72727a; margin: 2px 0; }
   .r-sep { border-top: 1px solid #2a2f3a; margin: 6px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 12px; }
+  th { background: #d9d0ee; color: #332966; text-align: left; padding: 8px 6px; border: 1px solid #bfb3d9; font-size: 13px; font-weight: bold; }
+  td { padding: 6px; border: 1px solid #bfb3d9; vertical-align: top; color: #222; }
+  tr:nth-child(odd) td { background: #ffffff; }
+  tr:nth-child(even) td { background: #f0edf8; }
+  .action { font-weight: bold; color: #4d3380; }
+  .form-link { color: #4d3380; }
+  .expires { color: #c0334d; font-weight: bold; }
 
   /* Ad slot */
   .ad-slot {
@@ -244,7 +252,7 @@ function ord(n) {
 function init() {
   const now = new Date();
   const curYear = now.getFullYear();
-  for (let y = curYear - 5; y <= curYear + 5; y++) {
+  for (let y = 2020; y <= 2050; y++) {
     const opt = new Option(y, y);
     if (y === curYear) opt.selected = true;
     yearEl.appendChild(opt);
@@ -300,46 +308,57 @@ function calculate() {
   html += `<div class="r-horizon">Five-year horizon from: ${fmt(cert)}  to  ${fmt({ year: ly, month: lm, day: ld })}</div>`;
   html += `<div class="r-sep"></div>`;
 
-  // Form 4.1 - First Medical Certificate
   const p0 = period(cert, 1);
 
-  html += `<div class="r-title">First Medical Certificate  (Form 4.1)  --  <span style="color:#80ccff">Involuntary Hospitalization Date: ${fmt(cert)}</span></div>`;
-  html += `<div class="r-sep"></div>`;
+  html += `<table>
+  <thead><tr>
+    <th>Action</th><th>Length of Involuntary Admission</th>
+    <th>Begins</th><th>Expires</th>
+  </tr></thead><tbody>`;
 
-  // Form 4.2 - Second Medical Certificate
-  html += `<div class="r-title">Second Medical Certificate  (Form 4.2)</div>`;
-  html += `<div class="r-period">Second Medical Certificate (Form 4.2) must be completed <span style="color:#ff8040;font-weight:bold">within 48 hours of the Form 4.1</span></div>`;
-  html += `<div class="r-sep"></div>`;
+  // Row 1: 1st Medical Certificate
+  html += `<tr>
+    <td class="action">1st Medical Certificate (Form 4.1)</td><td>48 hours</td>
+    <td>${fmt(cert)} (AKA - involuntary hospitalization date)</td>
+    <td class="expires">48 hours Form 4.1 created on ${fmt(cert)}</td></tr>`;
 
-  // Form 6 renewals
-  let cur = { ...cert };
+  // Row 3: 2nd Medical Certificate
+  html += `<tr>
+    <td class="action">2nd Medical Certificate (Form 4.2)</td>
+    <td>1 month from involuntary hospitalization date (minus 1 day)</td>
+    <td>${fmt(cert)}</td>
+    <td class="expires">${fmt(p0.expiry)} @11:59pm</td></tr>`;
+
+  // Renewal rows
+  let cur = p0.next;
   let idx = 0;
 
   while (true) {
-    let dur, title;
+    let dur, action;
 
     if (idx === 0) {
-      dur = 1; title = "1st Renewal";
+      dur = 1; action = "1st Renewal";
     } else if (idx === 1) {
-      dur = 1; title = "2nd Renewal";
-    } else if (idx === 2) {
-      dur = 3; title = "3rd Renewal";
+      dur = 3; action = "2nd Renewal";
     } else {
-      dur = 6; title = ord(idx + 1) + " Renewal";
+      dur = 6;
+      action = idx === 2 ? "3rd Renewal and Subsequent Renewals" : ord(idx + 1) + " Renewal";
     }
 
     const p = period(cur, dur);
-    const monthsStr = dur + " month" + (dur === 1 ? "" : "s");
+    const monthsStr = dur + " month" + (dur === 1 ? "" : "s") + " (minus 1 day)";
 
-    html += `<div class="r-title">${title}  --  within ${monthsStr}</div>`;
-    html += `<div class="r-period">Renewal Certificate (Form 6) must be completed: after  ${fmt(cur)}  but closer to and before  <span style="color:#ff8040;font-weight:bold">${fmt(p.expiry)} @11:59pm</span></div>`;
-    html += `<div class="r-sep"></div>`;
+    html += `<tr>
+      <td class="action">${action} (Form 6)</td><td>${monthsStr}</td>
+      <td>${fmt(cur)}</td>
+      <td class="expires">${fmt(p.expiry)} @11:59pm</td></tr>`;
 
     if (dkey(p.next) > limit) break;
     cur = p.next;
     idx++;
   }
 
+  html += `</tbody></table>`;
   html += `<div class="r-sep"></div>`;
   html += `<div class="r-note">Calculated per the Mental Health Act [RSBC 1996] CHAPTER 288 and BC Interpretation Act [RSBC 1996] CHAPTER 238:</div>`;
   html += `<div class="r-note">A "month" = corresponding calendar day of the target month, less one day.</div>`;

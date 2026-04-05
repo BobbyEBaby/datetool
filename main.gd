@@ -22,9 +22,9 @@ const ABBR := [
 func _ready() -> void:
 	var now := Time.get_datetime_dict_from_system()
 
-	for y in range(int(now.year) - 5, int(now.year) + 6):
+	for y in range(2020, 2051):
 		year_opt.add_item(str(y))
-	year_opt.selected = 5
+	year_opt.selected = int(now.year) - 2020
 
 	for m in MONTHS:
 		month_opt.add_item(m)
@@ -150,7 +150,7 @@ func _calculate() -> void:
 	var ld: int = mini(int(cert.day), _dim(ly, lm))
 	var limit: int = _dkey({"year": ly, "month": lm, "day": ld})
 
-	_label("Five-year horizon from:  %s  to  %s" % [_fmt(cert), _fmt({"year": ly, "month": lm, "day": ld})], 13, Color(0.55, 0.55, 0.6))
+	_label("Five-year horizon from:  %s  to  %s" % [_fmt(cert), _fmt({"year": ly, "month": lm, "day": ld})], 13, Color(0.4, 0.4, 0.5))
 	_sep()
 
 	_line("BC Mental Health Act - Recertification Schedule")
@@ -159,55 +159,61 @@ func _calculate() -> void:
 	_line("Five-year horizon from:    %s" % _fmt({"year": ly, "month": lm, "day": ld}))
 	_line("")
 
-	# Form 4.1 - First Medical Certificate
+	# -- Table --
 	var p0 := _period(cert, 1)
 
-	_rich_label("[color=#f2e08c]First Medical Certificate  (Form 4.1)  --  [/color][color=#80ccff]Involuntary Hospitalization Date: %s[/color]" % _fmt(cert), 15)
-	_sep()
+	var grid := GridContainer.new()
+	grid.columns = 4
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	grid.add_theme_constant_override("h_separation", 0)
+	grid.add_theme_constant_override("v_separation", 0)
+	results.add_child(grid)
 
-	_line("First Medical Certificate  (Form 4.1)  --  Involuntary Hospitalization Date: %s" % _fmt(cert))
-	_line("------------------------------------------------")
+	# Header row
+	for h in ["Action", "Length of Involuntary Admission", "Begins", "Expires"]:
+		_cell(grid, h, 15, Color(0.2, 0.15, 0.4), true, -1)
 
-	# Form 4.2 - Second Medical Certificate
-	_label("Second Medical Certificate  (Form 4.2)", 15, Color(0.95, 0.88, 0.55))
-	_rich_label("    Second Medical Certificate (Form 4.2) must be completed [color=#ff8040]within 48 hours of the Form 4.1[/color]", 14)
-	_sep()
+	# Row 0: 1st Medical Certificate
+	_cell(grid, "1st Medical Certificate (Form 4.1)", 15, Color(0.3, 0.2, 0.5), true, 0)
+	_cell(grid, "48 hours", 15, Color(0.15, 0.15, 0.15), false, 0)
+	_cell(grid, "%s (AKA - involuntary hospitalization date)" % _fmt(cert), 15, Color(0.15, 0.15, 0.15), false, 0)
+	_cell(grid, "48 hours Form 4.1 created on %s" % _fmt(cert), 15, Color(0.75, 0.2, 0.3), false, 0)
 
-	_line("Second Medical Certificate  (Form 4.2)")
-	_line("    Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1")
-	_line("------------------------------------------------")
+	# Row 1: 2nd Medical Certificate
+	_cell(grid, "2nd Medical Certificate (Form 4.2)", 15, Color(0.3, 0.2, 0.5), true, 1)
+	_cell(grid, "1 month from involuntary hospitalization date (minus 1 day)", 15, Color(0.15, 0.15, 0.15), false, 1)
+	_cell(grid, _fmt(cert), 15, Color(0.15, 0.15, 0.15), false, 1)
+	_cell(grid, "%s @11:59pm" % _fmt(p0.expiry), 15, Color(0.75, 0.2, 0.3), false, 1)
 
-	# Form 6 renewals - first one is 1 month from Form 4.1 date
-	var cur := cert
+	# Renewal rows
+	var cur: Dictionary = p0.next
 	var idx := 0
 
 	while true:
 		var dur: int
-		var title: String
+		var action: String
 
 		if idx == 0:
 			dur = 1
-			title = "1st Renewal"
+			action = "1st Renewal"
 		elif idx == 1:
-			dur = 1
-			title = "2nd Renewal"
-		elif idx == 2:
 			dur = 3
-			title = "3rd Renewal"
+			action = "2nd Renewal"
 		else:
 			dur = 6
-			title = "%s Renewal" % _ord(idx + 1)
+			if idx == 2:
+				action = "3rd Renewal and Subsequent Renewals"
+			else:
+				action = "%s Renewal" % _ord(idx + 1)
 
 		var p := _period(cur, dur)
-		var months_str := "%d month%s" % [dur, "" if dur == 1 else "s"]
+		var months_str := "%d month%s (minus 1 day)" % [dur, "" if dur == 1 else "s"]
 
-		_label("%s  --  within %s" % [title, months_str], 15, Color(0.95, 0.88, 0.55))
-		_rich_label("    Renewal Certificate (Form 6) must be completed: after  %s  but closer to and before  [color=#ff8040]%s @11:59pm[/color]" % [_fmt(cur), _fmt(p.expiry)], 14)
-		_sep()
-
-		_line("%s  --  within %s" % [title, months_str])
-		_line("    Renewal Certificate (Form 6) must be completed: after  %s  but closer to and before  %s @11:59pm" % [_fmt(cur), _fmt(p.expiry)])
-		_line("------------------------------------------------")
+		var row_num := idx + 2
+		_cell(grid, "%s (Form 6)" % action, 15, Color(0.3, 0.2, 0.5), true, row_num)
+		_cell(grid, months_str, 15, Color(0.15, 0.15, 0.15), false, row_num)
+		_cell(grid, _fmt(cur), 15, Color(0.15, 0.15, 0.15), false, row_num)
+		_cell(grid, "%s @11:59pm" % _fmt(p.expiry), 15, Color(0.75, 0.2, 0.3), false, row_num)
 
 		if _dkey(p.next) > limit:
 			break
@@ -224,16 +230,6 @@ func _calculate() -> void:
 	_label("Note: The Act offers no guidance regarding how many days prior to the end of the", 12, Color(0.45, 0.45, 0.5))
 	_label("last month of a period the examination must be completed, however, it is", 12, Color(0.45, 0.45, 0.5))
 	_label("recommended this be done reasonably close to the end of the period.", 12, Color(0.45, 0.45, 0.5))
-
-	_line("")
-	_line("Calculated per the Mental Health Act [RSBC 1996] CHAPTER 288 and BC Interpretation Act [RSBC 1996] CHAPTER 238:")
-	_line("A \"month\" = corresponding calendar day of the target month, less one day.")
-	_line("When no corresponding day exists, the last day of that month is used.")
-	_line("Always manually double check calculations.")
-	_line("")
-	_line("Note: The Act offers no guidance regarding how many days prior to the end of the")
-	_line("last month of a period the examination must be completed, however, it is")
-	_line("recommended this be done reasonably close to the end of the period.")
 
 
 func _label(text: String, font_size: int = 14, color := Color.WHITE) -> void:
@@ -252,6 +248,37 @@ func _rich_label(bbcode: String, font_size: int = 14) -> void:
 	l.add_theme_font_size_override("normal_font_size", font_size)
 	l.text = bbcode
 	results.add_child(l)
+
+
+func _cell(grid: GridContainer, text: String, font_size: int = 11, color := Color.WHITE, bold := false, row: int = 0) -> void:
+	var panel := PanelContainer.new()
+	var style := StyleBoxFlat.new()
+	if row == -1:
+		# Header
+		style.bg_color = Color(0.85, 0.82, 0.95)
+	elif row % 2 == 0:
+		style.bg_color = Color(1.0, 1.0, 1.0)
+	else:
+		style.bg_color = Color(0.94, 0.93, 0.98)
+	style.border_color = Color(0.75, 0.7, 0.85)
+	style.border_width_top = 1
+	style.border_width_bottom = 1
+	style.border_width_left = 1
+	style.border_width_right = 1
+	style.content_margin_left = 6
+	style.content_margin_right = 6
+	style.content_margin_top = 4
+	style.content_margin_bottom = 4
+	panel.add_theme_stylebox_override("panel", style)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_size_override("font_size", font_size)
+	l.add_theme_color_override("font_color", color)
+	l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	panel.add_child(l)
+	grid.add_child(panel)
 
 
 func _sep() -> void:

@@ -18,7 +18,8 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.11, 0.125, 0.16, 1)
+mouse_filter = 2
+color = Color(0.0, 0.0, 0.0, 1)
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -39,13 +40,14 @@ theme_override_constants/separation = 12
 [node name="Title" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 1, 1, 1)
 text = "Recertification Date Calculator"
 horizontal_alignment = 1
 
 [node name="Subtitle" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 16
-theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_colors/font_color = Color(0.7, 0.65, 0.8, 1)
 text = "BC Mental Health Act"
 horizontal_alignment = 1
 
