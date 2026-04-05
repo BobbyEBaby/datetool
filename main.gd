@@ -150,25 +150,31 @@ func _calculate() -> void:
 	var ld: int = mini(int(cert.day), _dim(ly, lm))
 	var limit: int = _dkey({"year": ly, "month": lm, "day": ld})
 
-	_label("Involuntary Hospitalization Date:  %s" % _fmt(cert), 17, Color(0.5, 0.8, 1.0))
-	_label("Five-year horizon:  %s" % _fmt({"year": ly, "month": lm, "day": ld}), 13, Color(0.55, 0.55, 0.6))
+	_label("Five-year horizon from:  %s  to  %s" % [_fmt(cert), _fmt({"year": ly, "month": lm, "day": ld})], 13, Color(0.55, 0.55, 0.6))
 	_sep()
 
 	_line("BC Mental Health Act - Recertification Schedule")
 	_line("================================================")
 	_line("Involuntary Hospitalization Date:  %s" % _fmt(cert))
-	_line("Five-year horizon:    %s" % _fmt({"year": ly, "month": lm, "day": ld}))
+	_line("Five-year horizon from:    %s" % _fmt({"year": ly, "month": lm, "day": ld}))
 	_line("")
 
 	# Form 4.1 - First Medical Certificate
 	var p0 := _period(cert, 1)
 
-	_label("First Medical Certificate  (Form 4.1)", 15, Color(0.95, 0.88, 0.55))
-	_rich_label("    Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1 -- [color=#ff8040]48 hours[/color]", 14)
+	_rich_label("[color=#f2e08c]First Medical Certificate  (Form 4.1)  --  [/color][color=#80ccff]Involuntary Hospitalization Date: %s[/color]" % _fmt(cert), 15)
 	_sep()
 
-	_line("First Medical Certificate  (Form 4.1)")
-	_line("    Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1 -- 48 hours")
+	_line("First Medical Certificate  (Form 4.1)  --  Involuntary Hospitalization Date: %s" % _fmt(cert))
+	_line("------------------------------------------------")
+
+	# Form 4.2 - Second Medical Certificate
+	_label("Second Medical Certificate  (Form 4.2)", 15, Color(0.95, 0.88, 0.55))
+	_rich_label("    Second Medical Certificate (Form 4.2) must be completed [color=#ff8040]within 48 hours of the Form 4.1[/color]", 14)
+	_sep()
+
+	_line("Second Medical Certificate  (Form 4.2)")
+	_line("    Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1")
 	_line("------------------------------------------------")
 
 	# Form 6 renewals - first one is 1 month from Form 4.1 date
@@ -195,11 +201,11 @@ func _calculate() -> void:
 		var p := _period(cur, dur)
 		var months_str := "%d month%s" % [dur, "" if dur == 1 else "s"]
 
-		_label("%s  --  %s (minus 1 day)" % [title, months_str], 15, Color(0.95, 0.88, 0.55))
+		_label("%s  --  within %s" % [title, months_str], 15, Color(0.95, 0.88, 0.55))
 		_rich_label("    Renewal Certificate (Form 6) must be completed: after  %s  but closer to and before  [color=#ff8040]%s @11:59pm[/color]" % [_fmt(cur), _fmt(p.expiry)], 14)
 		_sep()
 
-		_line("%s  --  %s (minus 1 day)" % [title, months_str])
+		_line("%s  --  within %s" % [title, months_str])
 		_line("    Renewal Certificate (Form 6) must be completed: after  %s  but closer to and before  %s @11:59pm" % [_fmt(cur), _fmt(p.expiry)])
 		_line("------------------------------------------------")
 

@@ -132,7 +132,7 @@
   <div class="subtitle">BC Mental Health Act</div>
   <hr>
 
-  <div class="instruction">Enter the date of initial certification (Form 4.1):</div>
+  <div class="instruction">Enter Involuntary Hospitalization Date (Form 4.1):</div>
 
   <div class="date-row">
     <label for="year">Year:</label>
@@ -297,15 +297,18 @@ function calculate() {
   const limit = dkey({ year: ly, month: lm, day: ld });
 
   let html = "";
-  html += `<div class="r-cert">Involuntary Hospitalization Date: ${fmt(cert)}</div>`;
-  html += `<div class="r-horizon">Five-year horizon: ${fmt({ year: ly, month: lm, day: ld })}</div>`;
+  html += `<div class="r-horizon">Five-year horizon from: ${fmt(cert)}  to  ${fmt({ year: ly, month: lm, day: ld })}</div>`;
   html += `<div class="r-sep"></div>`;
 
   // Form 4.1 - First Medical Certificate
   const p0 = period(cert, 1);
 
-  html += `<div class="r-title">First Medical Certificate  (Form 4.1)</div>`;
-  html += `<div class="r-period">Second Medical Certificate (Form 4.2) must be completed within 48 hours of the Form 4.1 -- <span style="color:#ff8040;font-weight:bold">48 hours</span></div>`;
+  html += `<div class="r-title">First Medical Certificate  (Form 4.1)  --  <span style="color:#80ccff">Involuntary Hospitalization Date: ${fmt(cert)}</span></div>`;
+  html += `<div class="r-sep"></div>`;
+
+  // Form 4.2 - Second Medical Certificate
+  html += `<div class="r-title">Second Medical Certificate  (Form 4.2)</div>`;
+  html += `<div class="r-period">Second Medical Certificate (Form 4.2) must be completed <span style="color:#ff8040;font-weight:bold">within 48 hours of the Form 4.1</span></div>`;
   html += `<div class="r-sep"></div>`;
 
   // Form 6 renewals
@@ -328,7 +331,7 @@ function calculate() {
     const p = period(cur, dur);
     const monthsStr = dur + " month" + (dur === 1 ? "" : "s");
 
-    html += `<div class="r-title">${title}  --  ${monthsStr} (minus 1 day)</div>`;
+    html += `<div class="r-title">${title}  --  within ${monthsStr}</div>`;
     html += `<div class="r-period">Renewal Certificate (Form 6) must be completed: after  ${fmt(cur)}  but closer to and before  <span style="color:#ff8040;font-weight:bold">${fmt(p.expiry)} @11:59pm</span></div>`;
     html += `<div class="r-sep"></div>`;
 

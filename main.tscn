@@ -55,7 +55,7 @@ layout_mode = 2
 [node name="Instruction" type="Label" parent="Margin/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "Enter the date of initial certification (Form 4.1):"
+text = "Enter Involuntary Hospitalization Date (Form 4.1):"
 
 [node name="DateRow" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
