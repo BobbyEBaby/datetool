@@ -177,7 +177,7 @@ func _calculate() -> void:
 	_cell(grid, "1st Medical Certificate (Form 4.1)", 15, Color(0.3, 0.2, 0.5), true, 0)
 	_cell(grid, "48 hours", 15, Color(0.15, 0.15, 0.15), false, 0)
 	_cell(grid, "%s (AKA - involuntary hospitalization date)" % _fmt(cert), 15, Color(0.15, 0.15, 0.15), false, 0)
-	_cell(grid, "48 hours Form 4.1 created on %s" % _fmt(cert), 15, Color(0.75, 0.2, 0.3), false, 0)
+	_cell(grid, "48 hours after Form 4.1 created on %s" % _fmt(cert), 15, Color(0.75, 0.2, 0.3), false, 0)
 
 	# Row 1: 2nd Medical Certificate
 	_cell(grid, "2nd Medical Certificate (Form 4.2)", 15, Color(0.3, 0.2, 0.5), true, 1)
