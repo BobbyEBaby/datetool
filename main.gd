@@ -150,13 +150,13 @@ func _calculate() -> void:
 	var ld: int = mini(int(cert.day), _dim(ly, lm))
 	var limit: int = _dkey({"year": ly, "month": lm, "day": ld})
 
-	_label("Five-year horizon from:  %s  to  %s" % [_fmt(cert), _fmt({"year": ly, "month": lm, "day": ld})], 13, Color(0.4, 0.4, 0.5))
+	_label("Five-year time horizon from:  %s  to  %s" % [_fmt(cert), _fmt({"year": ly, "month": lm, "day": ld})], 13, Color(0.4, 0.4, 0.5))
 	_sep()
 
 	_line("BC Mental Health Act - Recertification Schedule")
 	_line("================================================")
 	_line("Involuntary Hospitalization Date:  %s" % _fmt(cert))
-	_line("Five-year horizon from:    %s" % _fmt({"year": ly, "month": lm, "day": ld}))
+	_line("Five-year time horizon from:    %s" % _fmt({"year": ly, "month": lm, "day": ld}))
 	_line("")
 
 	# -- Table --
